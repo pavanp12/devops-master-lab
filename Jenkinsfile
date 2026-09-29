@@ -4,6 +4,7 @@ pipeline {
     tools {
         jdk 'JDK-21'
         maven 'Maven-3.9.16'
+        sonarQube 'SonarQube-Scanner'
     }
 
     environment {
@@ -15,6 +16,15 @@ pipeline {
         stage('Test') {
             steps {
                 bat 'mvn -B clean verify'
+            }
+        }
+
+
+       stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    bat 'mvn -B sonar:sonar -Dsonar.projectKey=devops-java-lab'
+                }
             }
         }
 

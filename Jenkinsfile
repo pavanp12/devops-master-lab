@@ -22,7 +22,7 @@ pipeline {
        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    bat 'mvn -B sonar:sonar -Dsonar.projectKey=devops-java-lab'
+                    bat 'mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=devops-java-lab'
                 }
             }
         }

@@ -1,96 +1,70 @@
 # 🚀 DevOps Java Lab
 
-> A beginner-friendly, enterprise-style DevOps learning project built step by step on Windows.
+## What are we building?
 
-**Goal:** Start with a simple Java application and gradually build a complete DevOps pipeline around it.
+We start with one small Java Spring Boot application and gradually build a complete DevOps workflow around it.
 
----
+The goal is **not to become a Java expert**.
 
-## 📌 Project Status
-
-| Area | Status |
-|---|---|
-| Java 21 | ✅ Done |
-| Spring Boot | ✅ Done |
-| Maven | ✅ Done |
-| Git | ✅ Done |
-| GitHub | ✅ Done |
-| Docker | ✅ Done |
-| Docker Compose | ✅ Done |
-| Prometheus | ✅ Done |
-| Grafana | ✅ Done |
-| Jenkins | ✅ Done |
-| SonarQube | ✅ Done |
-| SonarQube Quality Gate | ✅ Passed |
-| Docker Registry | ⏳ Next |
-| Kubernetes | ⏳ Planned |
-| Helm | ⏳ Planned |
-| Terraform | ⏳ Planned |
-| AWS / EKS | ⏳ Planned |
-| Ansible | ⏳ Planned |
-| GitHub Actions | ⏳ Planned |
-
----
-
-# 🧭 What Are We Building?
-
-Instead of learning DevOps tools separately, this project uses **one small Java application** as the center of the entire lab.
+The goal is to understand how a real application moves through a DevOps environment:
 
 ```text
-Developer
-    ↓
- GitHub
-    ↓
- Jenkins
-    ↓
- Maven Build + Tests
-    ↓
- SonarQube
-    ↓
- Quality Gate ✅
-    ↓
- Docker Build
-    ↓
- Docker Registry
-    ↓
- Kubernetes
-    ↓
- Prometheus + Grafana
+Code
+ ↓
+Git
+ ↓
+GitHub
+ ↓
+Build & Test
+ ↓
+Docker
+ ↓
+Monitoring
+ ↓
+Jenkins
+ ↓
+Code Quality
+ ↓
+Docker Registry
+ ↓
+Kubernetes
+ ↓
+AWS / EKS
 ```
 
-The final goal is to understand how these tools work together in a real DevOps workflow.
+### The main learning principle
+
+> **Build it manually → verify it works → automate it → troubleshoot it → understand why it works.**
 
 ---
 
-# ☕ 1. Java + Spring Boot
+# 1. Java + Spring Boot
 
-We started with a very small Spring Boot Java application.
+### What is it?
 
-The application is intentionally simple because the purpose of this project is **DevOps**, not complicated Java development.
+Our Java application is the actual application that we will use throughout the lab.
 
-### Technology
+We use:
 
-- Java 21 LTS
-- Spring Boot
-- Maven
+* Java 21
+* Spring Boot
+* Maven
 
-### Main API
+### Why do we need it?
+
+DevOps tools need something to build, test, package, deploy and monitor.
+
+Instead of learning every DevOps tool separately, we use **one simple application** throughout the entire project.
+
+### What did we build?
+
+A simple API:
 
 ```text
 GET /api/hello
 ```
 
-Example response:
-
-```json
-{
-  "timestamp": "2026-09-29T13:48:20.002255300Z",
-  "message": "Hello from the DevOps Java Lab",
-  "version": "1.0.0"
-}
-```
-
-Important monitoring endpoints:
+We also enabled monitoring endpoints:
 
 ```text
 /actuator/health
@@ -100,296 +74,357 @@ Important monitoring endpoints:
 /actuator/metrics
 ```
 
-### Why?
+### What did we learn?
 
-We need an actual application to:
-
-- build
-- test
-- containerize
-- scan
-- deploy
-- monitor
+The application is the **center of our entire DevOps lab**.
 
 ---
 
-# 🧰 2. Maven
+# 2. Maven
 
-Maven is the **build tool** for the Java application.
+### What is Maven?
 
-We use Maven to:
+Maven is the build tool for our Java application.
 
-- download dependencies
-- compile Java code
-- run tests
-- create the JAR
-- verify the build
+### Why do we need it?
 
-Build:
+Before deploying an application, we need to make sure:
+
+* the code compiles
+* tests run
+* the application can be packaged
+
+### What do we run?
 
 ```powershell
 mvn clean package
 ```
 
-This creates:
+Maven performs:
+
+```text
+Clean
+ ↓
+Compile
+ ↓
+Test
+ ↓
+Package
+ ↓
+JAR
+```
+
+The result is:
 
 ```text
 target/devops-java-lab-1.0.0.jar
 ```
 
-Run locally:
+### What did we learn?
 
-```powershell
-mvn spring-boot:run
-```
-
-Application:
-
-```text
-http://localhost:8080
-```
-
-**Important:** The Java application does not need to be running all the time. We run it manually when we want to test it locally. Jenkins can build and test it without keeping the server running.
+Maven converts our source code into a **buildable application artifact**.
 
 ---
 
-# 🌱 3. Git
+# 3. Git
 
-Git provides **version control**.
+### What is Git?
 
-We initialized Git inside the actual project directory and created a `.gitignore` so files such as Maven's `target/` directory and IDE files are not committed.
+Git is our version-control system.
 
-Git lets us track changes to:
+### Why do we need it?
 
-- Java code
-- Jenkinsfile
-- Docker configuration
-- Kubernetes manifests
-- Terraform
-- documentation
-- CI/CD configuration
+We need to track changes to our:
 
-Basic workflow:
+* Java code
+* Docker files
+* Jenkinsfile
+* Kubernetes files
+* Terraform
+* CI/CD configuration
+
+### Basic workflow
 
 ```text
 Change
-  ↓
+ ↓
 git add
-  ↓
+ ↓
 git commit
-  ↓
+ ↓
 git push
 ```
 
----
+### What did we learn?
 
-# 🐙 4. GitHub
-
-The local repository was connected to GitHub.
-
-Repository:
-
-```text
-https://github.com/pavanp12/devops-master-lab
-```
-
-Main branch:
-
-```text
-main
-```
-
-GitHub is the central source-code repository and Jenkins checks out the project from it.
+Git gives us a history of what changed and allows us to safely manage our project.
 
 ---
 
-# 🐳 5. Docker
+# 4. GitHub
 
-Docker packages the application into a portable container image.
+### What is GitHub?
+
+GitHub is our remote Git repository.
+
+Our repository:
+
+```text
+pavanp12/devops-master-lab
+```
+
+### Why do we need it?
+
+Our source code needs to be available remotely so tools such as Jenkins can retrieve it.
+
+The relationship is:
+
+```text
+Our PC
+ ↓
+Git
+ ↓
+GitHub
+ ↓
+Jenkins
+```
+
+### What did we learn?
+
+Git manages the repository locally.
+
+GitHub stores and shares that repository remotely.
+
+---
+
+# 5. Docker
+
+### What is Docker?
+
+Docker packages our application into a container image.
+
+### Why do we need it?
+
+We want our application to run consistently without depending on the environment where it is deployed.
+
+Instead of saying:
+
+> "It works on my laptop."
+
+we package the application and its runtime environment together.
+
+### Flow
 
 ```text
 Java Application
-      +
-JAR File
-      ↓
+ +
+JAR
+ ↓
 Docker Image
-      ↓
+ ↓
 Docker Container
 ```
 
-We successfully built:
+### Important distinction
+
+**Image**
+
+```text
+Packaged application
+```
+
+**Container**
+
+```text
+Running instance of an image
+```
+
+### Example
 
 ```powershell
 docker build -t devops-java-lab:1.0 .
 ```
 
-And ran:
-
-```powershell
-docker run --name devops-java-lab-container -p 8080:8080 devops-java-lab:1.0
-```
-
-Then verified:
-
-```text
-http://localhost:8080/api/hello
-```
-
-### Important lesson
-
-**Image** = packaged application.
-
-**Container** = running instance of the image.
-
 ---
 
-# 🧩 6. Docker Compose
+# 6. Docker Compose
 
-Docker Compose lets us run multiple services together.
+### What is Docker Compose?
+
+Docker Compose allows us to run multiple containers as one environment.
+
+### Why do we need it?
+
+Our application doesn't exist alone.
+
+We also need monitoring tools.
 
 Our local environment contains:
 
 ```text
 Docker Compose
-     │
-     ├── Java App       :8080
-     ├── Prometheus     :9091
-     └── Grafana        :3000
+      │
+      ├── Java App
+      ├── Prometheus
+      └── Grafana
 ```
 
-We successfully started it with:
+We can start everything with:
 
 ```powershell
 docker compose up -d
 ```
 
-And checked it with:
+Check everything with:
 
 ```powershell
 docker compose ps
 ```
 
-### Current local ports
+### Why is this useful?
 
-| Service | URL |
-|---|---|
-| Java App | `http://localhost:8080` |
-| Jenkins | `http://localhost:9090` |
-| Prometheus | `http://localhost:9091` |
-| Grafana | `http://localhost:3000` |
-| SonarQube | `http://localhost:9000` |
-
-Prometheus uses container port `9090`, but host port `9091` because Jenkins already uses host port `9090`.
+Instead of starting three containers manually, one command starts the environment.
 
 ---
 
-# 📊 7. Prometheus
+# 7. Prometheus
 
-Prometheus is used for **metrics monitoring**.
+### What is Prometheus?
 
-The Spring Boot application exposes metrics through:
+Prometheus is our metrics-monitoring system.
+
+### Why do we need it?
+
+Running an application isn't enough.
+
+We also want to know:
+
+* Is it healthy?
+* How much memory is it using?
+* How many requests are coming in?
+* What is happening inside the JVM?
+
+Our Spring Boot application exposes:
 
 ```text
 /actuator/prometheus
 ```
 
-We verified that the endpoint returns Prometheus metrics.
+Prometheus collects those metrics.
 
-Prometheus successfully scraped the application, and the target was verified as:
+### Flow
+
+```text
+Spring Boot
+ ↓
+Actuator
+ ↓
+Prometheus
+ ↓
+Metrics
+```
+
+### What did we verify?
+
+The Prometheus target was successfully detected as:
 
 ```text
 UP
 ```
 
-Prometheus:
-
-```text
-http://localhost:9091
-```
-
-### Simple explanation
-
-Prometheus repeatedly asks the application:
-
-> "How are you doing?"
-
-The application responds with metrics such as JVM and HTTP metrics.
-
 ---
 
-# 📈 8. Grafana
+# 8. Grafana
 
-Grafana turns metrics into visual dashboards and graphs.
+### What is Grafana?
 
-Grafana:
+Grafana displays metrics visually.
+
+### Why do we need it?
+
+Prometheus provides the metrics, but Grafana makes them easier to understand through:
+
+* graphs
+* dashboards
+* visualizations
+
+### Flow
 
 ```text
-http://localhost:3000
+Spring Boot
+ ↓
+Actuator
+ ↓
+Prometheus
+ ↓
+Grafana
+ ↓
+Dashboard
 ```
 
-We connected Grafana to Prometheus using:
-
-```text
-http://prometheus:9090
-```
-
-The connection passed its test.
-
-We also created a visualization using:
+### Example metric
 
 ```text
 jvm_memory_used_bytes
 ```
 
-Monitoring flow:
+### What did we learn?
 
-```text
-Spring Boot
-    ↓
-Actuator
-    ↓
-Prometheus
-    ↓
-Grafana
-    ↓
-Dashboard
-```
+Prometheus = **collect and query metrics**
+
+Grafana = **visualize metrics**
 
 ---
 
-# ⚙️ 9. Jenkins
+# 9. Jenkins
 
-Jenkins is our **CI/CD automation server**.
+### What is Jenkins?
 
-Jenkins is running on Windows at:
+Jenkins is our CI/CD automation server.
 
-```text
-http://localhost:9090
-```
+### Why do we need it?
 
-Version:
+Without Jenkins, we would manually perform:
 
 ```text
-Jenkins 2.568.3
+Build
+ ↓
+Test
+ ↓
+Code analysis
+ ↓
+Docker build
 ```
 
-Job:
+every time we change the project.
+
+Jenkins automates these steps.
+
+### Our pipeline
 
 ```text
-java-lab-jenkins
+GitHub
+ ↓
+Jenkins
+ ↓
+Maven
+ ↓
+Tests
+ ↓
+SonarQube
+ ↓
+Quality Gate
 ```
+
+### What did we learn?
+
+Jenkins turns individual commands into an **automated pipeline**.
 
 ---
 
-# 🛠️ 10. Jenkins Tool Configuration
+# 10. Jenkins Tools
 
-Because Jenkins is running on Windows, we explicitly configured the tools.
-
-### Git
-
-```text
-C:\Program Files\Git\cmd\git.exe
-```
+Jenkins runs on Windows, so we explicitly configured the tools it needs.
 
 ### Java
 
@@ -405,78 +440,77 @@ Maven-3.9.16
 C:\tools\apache-maven-3.9.16
 ```
 
-This taught an important Jenkins concept:
+### Git
 
-> Jenkins needs to know where the required tools are installed.
+```text
+C:\Program Files\Git\cmd\git.exe
+```
+
+### Why?
+
+Jenkins needs to know:
+
+> "Where are the tools I should use?"
+
+This is an important Jenkins administration concept.
 
 ---
 
-# 📜 11. Jenkinsfile
+# 11. Jenkinsfile
 
-The pipeline is stored as code in:
+### What is a Jenkinsfile?
+
+A Jenkinsfile stores our pipeline as code.
+
+Instead of manually telling Jenkins what to do every time, we define the workflow in the repository.
+
+### Our pipeline conceptually does:
 
 ```text
-Jenkinsfile
-```
-
-The current pipeline performs:
-
-```text
-Test
-  ↓
+Checkout
+ ↓
+Maven Build + Tests
+ ↓
 SonarQube Analysis
-  ↓
+ ↓
+Quality Gate
+ ↓
 Docker Build
-  ↓
-Deploy placeholder
 ```
 
-Because Jenkins runs on Windows, pipeline commands use:
+### Why is this important?
 
-```groovy
-bat
-```
-
-rather than Linux:
-
-```groovy
-sh
-```
+The pipeline itself becomes part of the project and can be version-controlled with Git.
 
 ---
 
-# 🧪 12. Jenkins + Maven
+# 12. SonarQube
 
-Jenkins runs:
+### What is SonarQube?
 
-```text
-mvn -B clean verify
-```
+SonarQube performs automated code-quality analysis.
 
-This:
+### Why do we need it?
 
-- cleans the previous build
-- compiles the application
-- runs tests
-- verifies the build
+A successful compilation doesn't necessarily mean that code is good quality.
 
-The Maven build completed successfully.
+We want an automated quality check before allowing the pipeline to continue.
 
----
-
-# 🔎 13. SonarQube
-
-SonarQube provides **code quality analysis**.
-
-We installed SonarQube using Docker.
-
-SonarQube:
+### Flow
 
 ```text
-http://localhost:9000
+Jenkins
+ ↓
+Maven
+ ↓
+SonarQube Scanner
+ ↓
+SonarQube
+ ↓
+Code Analysis
 ```
 
-Project:
+Our project:
 
 ```text
 DevOps Java Lab
@@ -488,560 +522,150 @@ Project key:
 devops-java-lab
 ```
 
-We created a SonarQube token and stored it securely in Jenkins as a credential.
+---
 
-Jenkins was configured with:
+# 13. SonarQube Token
+
+### Why do we need a token?
+
+Jenkins needs permission to send the analysis to SonarQube.
+
+We therefore created a SonarQube token.
+
+We **do not put the token directly into the Jenkinsfile**.
+
+Instead:
 
 ```text
-Server name: sonarqube
-Credential: sonarqube-token
+SonarQube Token
+      ↓
+Jenkins Credential
+      ↓
+Jenkins Pipeline
 ```
 
-The SonarQube Scanner plugin was installed in Jenkins.
+This is safer than hardcoding credentials in source code.
 
 ---
 
-# 🛡️ 14. SonarQube Quality Gate
+# 14. SonarQube Quality Gate
 
-Jenkins sends the project to SonarQube for analysis.
+### What is a Quality Gate?
 
-```text
-Jenkins
-   ↓
-Maven
-   ↓
-SonarQube Analysis
-   ↓
-Quality Gate
-```
+The Quality Gate is the decision point after SonarQube analyzes the project.
 
-The project successfully passed the Quality Gate:
-
-```text
-✅ PASSED
-```
-
----
-
-# 🔄 15. Current CI Pipeline
-
-We now have a working CI pipeline:
-
-```text
-Developer
-    │
-    ▼
- GitHub
-    │
-    ▼
- Jenkins
-    │
-    ├──► Maven Build + Tests
-    │
-    ├──► SonarQube Analysis
-    │
-    ├──► Quality Gate ✅
-    │
-    └──► Docker Build
-```
-
-This is a major milestone: Jenkins is now automating the build workflow instead of us manually running every step.
-
----
-
-# 🧠 What We Have Learned
-
-### Source control
-
-```text
-Git → GitHub
-```
-
-### Build automation
-
-```text
-Maven → Build + Test
-```
-
-### Containerization
-
-```text
-JAR → Docker Image → Container
-```
-
-### Multi-container environments
-
-```text
-Docker Compose → App + Prometheus + Grafana
-```
-
-### Monitoring
-
-```text
-Prometheus → Metrics
-```
-
-### Visualization
-
-```text
-Grafana → Dashboards
-```
-
-### Continuous Integration
-
-```text
-Jenkins → Automated pipeline
-```
-
-### Code quality
-
-```text
-SonarQube → Code analysis
-```
-
-### Quality control
-
-```text
-Quality Gate → Pass/Fail based on configured conditions
-```
-
----
-
-# 🧯 Real Problems We Solved
-
-This project was also useful because we encountered real DevOps troubleshooting situations.
-
-### Maven: wrong directory
-
-Running Maven from the outer project folder caused:
-
-```text
-No plugin found for prefix 'spring-boot'
-```
-
-The actual problem was that the command was being run outside the directory containing:
-
-```text
-pom.xml
-```
-
----
-
-### Jenkins: `sh` on Windows
-
-The original Jenkinsfile used:
-
-```groovy
-sh
-```
-
-Windows Jenkins requires:
-
-```groovy
-bat
-```
-
----
-
-### Jenkins: Java not found
-
-Jenkins initially could not find Java.
-
-We configured:
-
-```text
-JDK-21
-C:\Program Files\Java\jdk-21
-```
-
----
-
-### Jenkins: Maven configuration
-
-We configured:
-
-```text
-Maven-3.9.16
-C:\tools\apache-maven-3.9.16
-```
-
----
-
-### Docker: daemon not running
-
-Docker commands initially failed because the Docker engine was not running.
-
-Starting Docker Desktop fixed it.
-
----
-
-### Docker: `.dockerignore`
-
-The Docker build initially could not find:
-
-```text
-target/devops-java-lab-1.0.0.jar
-```
-
-because `target/` was excluded by `.dockerignore`.
-
-We corrected it so the JAR could be included in the Docker build context.
-
----
-
-### Port conflict
-
-Jenkins uses:
-
-```text
-9090
-```
-
-Prometheus also normally uses:
-
-```text
-9090
-```
-
-So we mapped:
-
-```text
-localhost:9091 → Prometheus container:9090
-```
-
----
-
-### SonarQube Maven plugin
-
-Maven could not resolve the short `sonar` prefix in Jenkins.
-
-We changed the pipeline to explicitly invoke:
-
-```text
-org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-```
-
-The SonarQube analysis then completed successfully.
-
----
-
-# 📂 Important Project Files
-
-```text
-devops-java-lab/
-│
-├── src/
-├── pom.xml
-├── Dockerfile
-├── docker-compose.yml
-├── Jenkinsfile
-├── .gitignore
-├── .dockerignore
-├── sonar-project.properties
-│
-├── prometheus/
-│   └── prometheus.yml
-│
-├── grafana/
-│   ├── dashboards/
-│   └── provisioning/
-│
-├── k8s/
-├── helm/
-├── terraform/
-├── ansible/
-└── README.md
-```
-
-The later-stage Kubernetes, Helm, Terraform and Ansible directories are prepared for future parts of the lab and have not yet been used as the main deployment path.
-
----
-
-# 🗺️ DevOps Roadmap
-
-## ✅ Phase 1 — Application
-
-```text
-Java
-Spring Boot
-Maven
-```
-
-## ✅ Phase 2 — Source Control
-
-```text
-Git
-GitHub
-```
-
-## ✅ Phase 3 — Containers
-
-```text
-Docker
-Docker Compose
-```
-
-## ✅ Phase 4 — Local Observability
-
-```text
-Prometheus
-Grafana
-```
-
-## ✅ Phase 5 — Code Quality
-
-```text
-SonarQube
-Quality Gate
-```
-
-## ✅ Phase 6 — CI
-
-```text
-Jenkins
-Maven
-SonarQube
-Docker
-```
-
-## ⏳ Phase 7 — Container Registry
-
-Next:
-
-```text
-Docker Hub
-```
-
-Jenkins will eventually build and push the Docker image.
-
-## ⏳ Phase 8 — Kubernetes
-
-Then we will learn:
-
-```text
-Cluster
-Nodes
-Pods
-Deployments
-Services
-ConfigMaps
-Secrets
-Ingress
-```
-
-## ⏳ Phase 9 — Helm
-
-Package the Kubernetes application with Helm.
-
-## ⏳ Phase 10 — Infrastructure as Code
-
-Learn Terraform and use it to provision infrastructure.
-
-## ⏳ Phase 11 — AWS / EKS
-
-Move from local Kubernetes toward:
-
-```text
-AWS
- ↓
-EKS
- ↓
-Kubernetes
-```
-
-## ⏳ Phase 12 — Ansible
-
-Learn configuration management and server automation.
-
-## ⏳ Phase 13 — GitHub Actions
-
-Add GitHub Actions as another CI/CD system and compare its workflow with Jenkins.
-
----
-
-# 🎯 Long-Term Architecture
-
-```text
-                         GitHub
-                            │
-                            ▼
-                     CI/CD Pipeline
-                            │
-                       ┌────┴────┐
-                       ▼         ▼
-                    Jenkins   GitHub Actions
-                       │
-                       ▼
-                     Maven
-                       │
-                       ▼
-                   SonarQube
-                       │
-                  Quality Gate
-                       │
-                       ▼
-                     Docker
-                       │
-                       ▼
-                Docker Registry
-                       │
-                       ▼
-                   Kubernetes
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-         Prometheus          Grafana
-              │                 │
-              └────────┬────────┘
-                       ▼
-                 Observability
-
-Infrastructure:
-Terraform → AWS → EKS
-
-Packaging:
-Helm
-
-Configuration:
-Ansible
-```
-
----
-
-# 🧑‍💻 Useful Commands
-
-Use the **VS Code integrated PowerShell terminal**.
-
-Make sure you are inside the directory containing `pom.xml`.
-
-```powershell
-cd C:\Users\panch\Desktop\devops-java-lab\devops-java-lab
-```
-
-### Git
-
-```powershell
-git status
-```
-
-### Build Java application
-
-```powershell
-mvn clean package
-```
-
-### Run application locally
-
-```powershell
-mvn spring-boot:run
-```
-
-### Build Docker image
-
-```powershell
-docker build -t devops-java-lab:1.0 .
-```
-
-### Start Compose
-
-```powershell
-docker compose up -d
-```
-
-### Check containers
-
-```powershell
-docker compose ps
-```
-
-### Stop Compose
-
-```powershell
-docker compose down
-```
-
----
-
-# 🎯 The Main Idea
-
-The Java application is deliberately simple.
-
-The goal is to learn how the DevOps ecosystem fits together:
+Conceptually:
 
 ```text
 Code
  ↓
-Git
- ↓
-GitHub
- ↓
-Jenkins
- ↓
-Build + Test
- ↓
-SonarQube
+SonarQube Analysis
  ↓
 Quality Gate
- ↓
-Docker
- ↓
-Registry
- ↓
-Kubernetes
- ↓
-Helm
- ↓
-AWS / EKS
- ↓
-Prometheus + Grafana
 ```
 
-> **Learning principle:** Build it manually → verify it works → automate it → troubleshoot it → understand why it works.
+The result can determine whether the pipeline should continue.
+
+```text
+Quality Gate
+      │
+ ┌────┴────┐
+ ↓         ↓
+PASS      FAIL
+ ↓         ↓
+Continue  Stop
+```
+
+Our project previously achieved:
+
+```text
+PASSED ✅
+```
+
+### Why is this useful?
+
+It prevents the CI/CD pipeline from blindly continuing when the configured code-quality conditions aren't satisfied.
 
 ---
 
-## 🚀 Current Position
+# 15. What happens when we click "Build Now"?
+
+This is the most important part of the lab.
+
+When Jenkins starts the pipeline:
+
+```text
+GitHub
+   ↓
+Get latest source code
+   ↓
+Maven
+   ↓
+Compile
+   ↓
+Run tests
+   ↓
+SonarQube
+   ↓
+Analyze code
+   ↓
+Quality Gate
+   ↓
+Docker Build
+```
+
+So Jenkins is effectively coordinating the tools we learned individually.
+
+---
+
+# 16. Why do we need all these tools?
+
+Each tool solves a different problem.
+
+| Tool             | Problem it solves                  |
+| ---------------- | ---------------------------------- |
+| Java/Spring Boot | Application                        |
+| Maven            | Build & test                       |
+| Git              | Version control                    |
+| GitHub           | Remote source repository           |
+| Docker           | Containerization                   |
+| Docker Compose   | Run multiple containers            |
+| Prometheus       | Collect metrics                    |
+| Grafana          | Visualize metrics                  |
+| Jenkins          | Automate CI/CD                     |
+| SonarQube        | Code-quality analysis              |
+| Quality Gate     | Control whether pipeline continues |
+
+The important lesson is:
+
+> **DevOps isn't about memorizing tools. It's about understanding how the tools work together to move software from code to a reliable running system.**
+
+---
+
+# 17. Where we are now
 
 ### Completed
 
 ```text
 Java + Spring Boot
         ↓
-      Maven
+Maven
         ↓
-       Git
+Git
         ↓
-      GitHub
+GitHub
         ↓
-      Docker
+Docker
         ↓
- Docker Compose
+Docker Compose
         ↓
-Prometheus + Grafana
+Prometheus
         ↓
-     Jenkins
+Grafana
         ↓
-    SonarQube
+Jenkins
         ↓
- Quality Gate ✅
-```
-
-### Next
-
-```text
-Docker Registry
-      ↓
-Kubernetes
-      ↓
-Helm
-      ↓
-Terraform
-      ↓
-AWS / EKS
-      ↓
-Ansible
-      ↓
-GitHub Actions
-      ↓
-Enterprise-style CI/CD
+SonarQube
+        ↓
+Quality Gate ✅
 ```

@@ -44,10 +44,22 @@ pipeline {
             }
         }
 
-        stage('Docker push'){
-            steps {
-               withCredentials([usernamePassword( credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_TOKEN' )]) { bat ''' docker tag %IMAGE% %DOCKER_IMAGE% docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_TOKEN% docker push %DOCKER_IMAGE% ''' } }
+        stage('Docker push') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKERHUB_USERNAME',
+            passwordVariable: 'DOCKERHUB_TOKEN'
+        )]) {
+
+            bat 'docker tag %IMAGE% %DOCKER_IMAGE%'
+
+            bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_TOKEN%'
+
+            bat 'docker push %DOCKER_IMAGE%'
         }
+    }
+}
 
         stage('Deploy') {
             steps {

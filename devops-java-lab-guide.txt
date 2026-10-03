@@ -1,0 +1,810 @@
+DEVOPS JAVA LAB — BEGINNER-FRIENDLY PROJECT GUIDE
+
+Goal
+
+This project is a small real-world DevOps/SRE lab.
+
+We started with a simple Java application and gradually built a complete
+deployment path:
+
+Developer → GitHub → CI → Docker → Docker Hub → Terraform → AWS → EKS →
+Kubernetes → Load Balancer → Application
+
+Later we will add: GitHub Actions → Helm → Argo CD → Ansible →
+Kubernetes monitoring/observability → SRE practices
+
+1. THE APPLICATION — SPRING BOOT
+
+What? A simple Java 21 Spring Boot application.
+
+Why? We need an application to deploy. DevOps tools manage the delivery
+and operation of the application; they are not the application itself.
+
+Important: - Java = programming language/runtime - Spring Boot =
+framework used to create the web application - Port 8080 = application
+listens here inside the container
+
+Health endpoint: /actuator/health
+
+Example: http:///actuator/health
+
+Expected: {“status”:“UP”,…}
+
+Why health checks? Kubernetes needs a simple way to know whether the
+application is alive and ready to receive traffic.
+
+2. MAVEN
+
+What? Maven is the Java build and dependency tool.
+
+Why? It downloads dependencies, compiles Java, runs tests, and creates
+the application JAR.
+
+Important files: pom.xml
+
+Useful commands: mvn clean mvn test mvn package mvn spring-boot:run
+
+Think: Java source code ↓ Maven ↓ JAR file
+
+3. GIT
+
+What? Git tracks changes in the project.
+
+Why? We need version control so we know what changed and can return to
+previous versions.
+
+Basic workflow: git status git add . git commit -m “message” git push
+
+GitHub stores the Git repository remotely.
+
+Our repository: devops-master-lab
+
+Important idea: Git = version control GitHub = remote
+hosting/collaboration platform
+
+4. DOCKER
+
+What? Docker packages the application and everything needed to run it
+into a container image.
+
+Why? “Works on my machine” problems are reduced because the same image
+can run in different environments.
+
+Important concepts:
+
+Dockerfile Instructions for building the image.
+
+Image Packaged application template.
+
+Container Running instance of an image.
+
+Typical flow: Dockerfile ↓ docker build ↓ Docker image ↓ docker run ↓
+Container
+
+Our application runs on port 8080 inside the container.
+
+5. DOCKER COMPOSE
+
+What? Docker Compose defines multiple containers/services in one YAML
+file.
+
+Why? Useful when several components need to run together locally.
+
+Example project components used during learning: - Application -
+Prometheus - Grafana - Other supporting services as required
+
+Important file: docker-compose.yml
+
+Typical command: docker compose up -d
+
+Stop: docker compose down
+
+Compose is mainly useful for local development/labs. Kubernetes will
+later handle the production-style container orchestration.
+
+6. PROMETHEUS
+
+What? Prometheus collects and stores metrics.
+
+Why? We need numbers that tell us how systems are behaving.
+
+Examples: - CPU usage - Memory - Request counts - Error counts -
+Application metrics
+
+Basic idea: Application ↓ Metrics ↓ Prometheus ↓ Stored time-series data
+
+Prometheus is a monitoring/metrics system.
+
+7. GRAFANA
+
+What? Grafana displays metrics in dashboards.
+
+Why? Raw Prometheus metrics are useful, but dashboards make trends
+easier to understand.
+
+Basic flow: Application/System ↓ Prometheus ↓ Grafana ↓ Dashboard
+
+Prometheus = collects/stores metrics Grafana = visualizes metrics
+
+8. JENKINS
+
+What? Jenkins is a CI/CD automation server.
+
+CI = Continuous Integration. It automatically builds/tests code when
+changes are pushed.
+
+Our Jenkins: Port: 9090
+
+Important configuration: - Git configured - JDK 21 configured - Maven
+configured
+
+Jenkins reads the: Jenkinsfile
+
+The Jenkinsfile defines the pipeline.
+
+Typical pipeline idea: GitHub ↓ Jenkins ↓ Checkout code ↓ Build/Test ↓
+SonarQube ↓ Docker build ↓ Docker Hub push
+
+Why Jenkins? Instead of manually repeating the same commands, Jenkins
+performs them automatically.
+
+9. SONARQUBE
+
+What? SonarQube analyzes source code quality.
+
+Why? A build can succeed while code still has bugs, vulnerabilities,
+code smells, or poor maintainability.
+
+Jenkins sends the project to SonarQube.
+
+Basic flow: Code ↓ Jenkins ↓ SonarQube analysis ↓ Quality result
+
+Important concept: Build success does NOT automatically mean good code.
+
+10. QUALITY GATE
+
+What? A Quality Gate is a rule/check that decides whether code meets the
+configured quality requirements.
+
+Why? We don’t want Jenkins to continue blindly if the code fails
+important quality checks.
+
+Flow: Jenkins ↓ SonarQube analysis ↓ Quality Gate ↓ PASS → continue FAIL
+→ pipeline can stop
+
+This connects code quality with CI/CD.
+
+11. DOCKER HUB
+
+What? Docker Hub is a container image registry.
+
+Why? Kubernetes needs access to the application image.
+
+Our image: pavandevp12/devops-java-lab:22
+
+Important: repository = pavandevp12/devops-java-lab tag = 22
+
+Flow: Jenkins ↓ docker build ↓ docker push ↓ Docker Hub
+
+Docker Hub stores the image so EKS/Kubernetes can pull it.
+
+12. TERRAFORM
+
+What? Terraform is Infrastructure as Code (IaC).
+
+Why? Instead of manually creating AWS resources in the console, we
+describe infrastructure in code.
+
+Terraform can create: - VPC - Subnets - Internet Gateway - NAT Gateway -
+Security Groups - EKS - Node Groups - IAM-related resources - Other AWS
+infrastructure
+
+Important commands: terraform init terraform plan terraform apply
+terraform destroy
+
+Meaning:
+
+init Downloads providers/modules and prepares Terraform.
+
+plan Shows what Terraform intends to change.
+
+apply Actually creates/changes infrastructure.
+
+destroy Removes infrastructure managed by Terraform.
+
+IMPORTANT: Always understand the plan before applying.
+
+13. TERRAFORM PROJECT STRUCTURE
+
+Our structure:
+
+terraform/ └── environments/ └── dev/ ├── main.tf ├── variables.tf ├──
+outputs.tf └── versions.tf
+
+main.tf Main infrastructure definitions.
+
+variables.tf Input variables such as region, VPC CIDR, cluster name.
+
+outputs.tf Values Terraform prints after deployment.
+
+versions.tf Terraform/provider version requirements.
+
+Why split files? It keeps infrastructure easier to understand and
+maintain.
+
+14. AWS VPC
+
+What? VPC = Virtual Private Cloud.
+
+Why? It gives our AWS resources their own network.
+
+Our VPC: 10.20.0.0/16
+
+We created: - Public subnets - Private subnets - Internet Gateway - NAT
+Gateway - Routes
+
+Simple picture:
+
+Internet ↓ Internet Gateway ↓ Public subnet ↓ NAT Gateway ↓ Private
+subnet ↓ EKS worker node
+
+Why private worker nodes? The application nodes do not need to be
+directly exposed to the Internet.
+
+The NAT Gateway allows private resources to make outbound connections
+when needed.
+
+15. AVAILABILITY ZONES
+
+We use two Availability Zones:
+
+    ap-south-1a
+    ap-south-1b
+
+Why? AWS infrastructure should not depend on a single physical location.
+
+Our VPC therefore has subnets across two AZs.
+
+Important: EKS requires appropriate subnet/AZ configuration for reliable
+cluster operation.
+
+16. EKS
+
+What? Amazon EKS = Elastic Kubernetes Service.
+
+Why? AWS manages the Kubernetes control plane while we manage our
+workloads and worker capacity.
+
+Our cluster: devops-java-lab
+
+Kubernetes version: 1.33
+
+Basic architecture:
+
+AWS └── EKS ├── Control Plane ← AWS manages this │ └── Worker Node(s) ←
+our workloads run here └── Pods
+
+17. EKS ADDONS
+
+We configured important EKS addons:
+
+-   VPC CNI
+-   EKS Pod Identity Agent
+-   kube-proxy
+-   CoreDNS
+
+Why?
+
+VPC CNI Gives Kubernetes pods networking inside the AWS VPC.
+
+CoreDNS Provides DNS/service discovery inside the cluster.
+
+kube-proxy Helps Kubernetes networking/services work on nodes.
+
+Pod Identity Agent Helps pods obtain AWS permissions without putting
+long-lived AWS credentials inside containers.
+
+Important: Some addons were configured with: before_compute = true
+
+This makes the required addon available before worker compute is
+created.
+
+18. EKS WORKER NODE
+
+We created a managed node group.
+
+Current instance type: t3.small
+
+Desired nodes: 1
+
+Maximum: 2
+
+The node runs Kubernetes workloads.
+
+Check nodes: kubectl get nodes
+
+Expected: STATUS = Ready
+
+“Ready” means Kubernetes considers the worker node healthy and able to
+run workloads.
+
+19. KUBECTL
+
+What? kubectl is the command-line client for Kubernetes.
+
+Why? It lets us communicate with the EKS cluster.
+
+Examples:
+
+    kubectl get nodes
+    kubectl get pods
+    kubectl get services
+    kubectl describe pod <name>
+    kubectl describe service <name>
+
+Important: kubectl is not Kubernetes itself.
+
+Think: kubectl ↓ Kubernetes API ↓ EKS cluster
+
+20. KUBERNETES DEPLOYMENT
+
+What? A Deployment manages application Pods.
+
+Our Deployment: devops-java-lab
+
+We configured: replicas: 2
+
+Why two Pods? If one Pod fails, another can continue serving traffic. It
+also gives us basic redundancy.
+
+Flow:
+
+Deployment ↓ 2 Pods ↓ Spring Boot containers
+
+21. POD
+
+What? A Pod is the basic execution unit in Kubernetes.
+
+Our Pods contain: Spring Boot application container
+
+Check: kubectl get pods
+
+Expected: 2 Pods STATUS = Running
+
+Important: You normally don’t manually manage individual Pods. You
+manage a Deployment, and Kubernetes creates/replaces Pods.
+
+22. KUBERNETES PROBES
+
+We configured:
+
+Readiness probe: /actuator/health/readiness
+
+Liveness probe: /actuator/health/liveness
+
+Readiness: “Can this Pod receive traffic?”
+
+Liveness: “Is this application still alive?”
+
+Why? Kubernetes can avoid sending traffic to an unready Pod and restart
+a broken container when necessary.
+
+23. KUBERNETES RESOURCES
+
+We configured resource requests and limits.
+
+Requests: CPU: 100m Memory: 256Mi
+
+Limits: CPU: 500m Memory: 512Mi
+
+Request = Minimum amount Kubernetes uses when scheduling the Pod.
+
+Limit = Maximum amount the container is allowed to use.
+
+Why? Without resource controls, one application can consume too many
+node resources.
+
+24. KUBERNETES SERVICE
+
+What? A Service gives Pods a stable network endpoint.
+
+Pods can be destroyed and recreated, so their IP addresses can change.
+
+The Service hides that instability.
+
+Our Service: devops-java-lab
+
+It maps:
+
+Service port: 80
+
+to:
+
+Container target port: 8080
+
+So:
+
+Client ↓ Service :80 ↓ Pod :8080
+
+25. KUSTOMIZE
+
+What? Kustomize manages Kubernetes YAML without copying the same files
+for every environment.
+
+Our structure:
+
+k8s/ ├── base/ │ ├── deployment.yaml │ └── kustomization.yaml └──
+overlays/ └── dev/ ├── kustomization.yaml └── service.yaml
+
+Base: Common Kubernetes configuration.
+
+Overlay: Environment-specific changes.
+
+Our dev overlay changes: image → pavandevp12/devops-java-lab:22 Service
+→ LoadBalancer
+
+Apply: kubectl apply -k k8s/overlays/dev
+
+Why? Same base can later support dev/staging/prod with different
+settings.
+
+26. AWS LOAD BALANCER
+
+Our Kubernetes Service is:
+
+    type: LoadBalancer
+
+Why? This asks AWS to provide an external load balancer.
+
+Traffic path:
+
+Internet ↓ AWS Load Balancer ↓ Kubernetes Service ↓ Pod ↓ Spring Boot
+:8080
+
+Our Service exposes: port 80
+
+and sends traffic to: targetPort 8080
+
+Important: The browser connects to the Load Balancer, not directly to
+the Pod.
+
+27. WHY “/” RETURNED 404
+
+When we opened:
+
+    http://<load-balancer>/
+
+Spring Boot returned:
+
+    HTTP 404
+
+This was NOT a Kubernetes/network failure.
+
+It meant: The request reached Spring Boot, but the application has no
+“/” endpoint.
+
+We tested:
+
+    /actuator/health
+
+and received:
+
+    {"status":"UP",...}
+
+Therefore the complete external path works.
+
+This is an important troubleshooting lesson: HTTP 404 means the server
+was reached, but that particular route was not found.
+
+28. CURRENT PROJECT ARCHITECTURE
+
+Complete current architecture:
+
+Developer ↓ Git ↓ GitHub ↓ Jenkins ├── Maven build/test ├── SonarQube
+├── Quality Gate └── Docker build/push ↓ Docker Hub ↓ Kubernetes ↓ EKS
+┌─────────┐ │ Pod 1 │ │ Pod 2 │ └─────────┘ ↓ Service ↓ AWS Load
+Balancer ↓ Internet
+
+29. IMPORTANT PORTS
+
+Application: 8080
+
+Jenkins: 9090
+
+Kubernetes Service: 80
+
+Kubernetes NodePort created for LoadBalancer: 31032 (current example)
+
+The NodePort is an internal Kubernetes mechanism used by the
+LoadBalancer service. You normally access the application through the
+AWS Load Balancer, not by manually using the NodePort.
+
+30. COMMON COMMANDS WE USE
+
+Check Kubernetes nodes: kubectl get nodes
+
+Check all application Pods: kubectl get pods
+
+Check services: kubectl get svc
+
+Detailed information: kubectl describe pod kubectl describe service
+
+Apply Kustomize: kubectl apply -k k8s/overlays/dev
+
+Check Terraform: terraform plan
+
+Apply Terraform: terraform apply
+
+Build Java project: mvn clean package
+
+Run locally: mvn spring-boot:run
+
+Git: git status git add . git commit -m “message” git push
+
+31. HOW TO TROUBLESHOOT
+
+Use the problem from the outside inward.
+
+If the website doesn’t work:
+
+1.  Is the AWS Load Balancer created? kubectl get svc
+
+2.  Does the Service have endpoints? kubectl get endpoints
+
+3.  Are Pods running? kubectl get pods
+
+4.  Are Pods Ready? kubectl get pods
+
+5.  Check the Deployment: kubectl describe deployment
+
+6.  Check the Service: kubectl describe service
+
+7.  Test the application’s health endpoint.
+
+8.  Check Pod logs: kubectl logs
+
+General rule:
+
+Internet problem? Check Load Balancer.
+
+Service problem? Check Service/endpoints.
+
+Pod problem? Check Pod/events/logs.
+
+Application problem? Check application logs/health endpoint.
+
+Infrastructure problem? Check Terraform/AWS.
+
+32. WHAT WE HAVE LEARNED SO FAR
+
+We now understand the basic lifecycle:
+
+1.  Write application
+
+2.  Build application
+
+3.  Store code in Git
+
+4.  Push code to GitHub
+
+5.  Jenkins builds/tests it
+
+6.  SonarQube checks code quality
+
+7.  Docker packages the application
+
+8.  Jenkins pushes image to Docker Hub
+
+9.  Terraform creates AWS infrastructure
+
+10. EKS provides Kubernetes
+
+11. Deployment creates Pods
+
+12. Service provides stable networking
+
+13. LoadBalancer exposes the application
+
+14. Browser reaches the application
+
+15. Health probes tell Kubernetes whether the application is healthy
+
+16. WHAT IS LEFT TO LEARN
+
+A. GITHUB ACTIONS
+
+Goal: Automate CI directly from GitHub.
+
+We will learn: - Workflow YAML - Triggers - Jobs - Steps - Maven
+build/test - Docker build - Docker Hub login - Docker push - Secrets
+
+Concept: GitHub push ↓ GitHub Actions ↓ Build/Test ↓ Docker image ↓
+Docker Hub
+
+B. HELM
+
+Goal: Manage Kubernetes applications as reusable packages.
+
+Instead of many raw YAML files, Helm gives us:
+
+    Chart
+    values.yaml
+    templates/
+
+We will learn: - Helm chart - values.yaml - templates - install -
+upgrade - rollback
+
+Commands: helm install helm upgrade helm rollback
+
+C. ARGO CD
+
+Goal: Implement GitOps.
+
+Basic idea:
+
+Git ↓ Desired Kubernetes configuration ↓ Argo CD ↓ EKS
+
+Argo CD continuously compares Git with the cluster.
+
+If the cluster differs from Git, Argo CD can synchronize it.
+
+D. ANSIBLE
+
+Goal: Configuration management and automation.
+
+We will learn: - Inventory - Playbooks - Tasks - Variables - Roles
+
+Example idea: Install/configure software on servers automatically.
+
+E. PROMETHEUS + GRAFANA ON EKS
+
+We already learned these locally.
+
+Next: Deploy monitoring into Kubernetes itself.
+
+We will monitor: - Nodes - Pods - CPU - Memory - Application metrics -
+Kubernetes health
+
+F. KUBERNETES DEEPER CONCEPTS
+
+We will cover:
+
+ConfigMap Non-secret application configuration.
+
+Secret Sensitive configuration.
+
+Namespaces Logical separation inside a cluster.
+
+HPA Horizontal Pod Autoscaler. Automatically changes Pod count based on
+load/metrics.
+
+Rolling update Gradually replaces old Pods with new Pods.
+
+Rollback Return to an earlier application version.
+
+Ingress More advanced HTTP/HTTPS routing.
+
+Requests/limits Resource management.
+
+Scheduling How Kubernetes decides where Pods run.
+
+G. OBSERVABILITY
+
+Monitoring tells us: “What is happening?”
+
+Observability helps us understand: “Why is it happening?”
+
+We will learn:
+
+Metrics Prometheus/Grafana
+
+Logs Application/system logs
+
+Traces Request journey across services
+
+OpenTelemetry Standard instrumentation/telemetry collection
+
+Jaeger Distributed tracing visualization
+
+Alerts Notify us when important conditions occur.
+
+H. SRE
+
+Finally we will connect the tools to SRE concepts:
+
+-   Availability
+-   Reliability
+-   SLIs
+-   SLOs
+-   Error budgets
+-   MTTR
+-   Incident management
+-   RCA
+-   Alerting
+-   Capacity
+-   Performance
+-   Resilience
+
+34. FINAL TARGET ARCHITECTURE
+
+The final learning architecture will look roughly like this:
+
+Developer ↓ GitHub ↓ GitHub Actions / Jenkins ↓ Maven + Tests ↓
+SonarQube + Quality Gate ↓ Docker ↓ Docker Hub ↓ GitOps / Argo CD ↓ Helm
+↓ AWS EKS ↓ Kubernetes Deployment ↓ Pods ↓ Service / Ingress ↓
+Application
+
+Around the application:
+
+Prometheus → Metrics Grafana → Dashboards OpenTelemetry → Telemetry
+Jaeger → Traces Logs → Troubleshooting Alerts → Notification
+
+Terraform remains responsible for infrastructure:
+
+Terraform ↓ AWS VPC + EKS + supporting infrastructure
+
+35. MOST IMPORTANT MENTAL MODEL
+
+Remember these simple definitions:
+
+Git Tracks code changes.
+
+GitHub Stores Git repositories.
+
+Maven Builds Java applications.
+
+Jenkins Automates CI/CD.
+
+SonarQube Checks code quality.
+
+Docker Packages applications.
+
+Docker Hub Stores container images.
+
+Terraform Creates infrastructure using code.
+
+AWS Provides cloud infrastructure.
+
+EKS Managed Kubernetes on AWS.
+
+Kubernetes Runs and manages containers.
+
+Pod Runs the application container.
+
+Deployment Manages application Pods.
+
+Service Gives Pods stable networking.
+
+Load Balancer Exposes the application externally.
+
+Kustomize Manages Kubernetes YAML variations.
+
+Helm Packages/manages Kubernetes applications.
+
+Argo CD Implements GitOps deployment.
+
+Prometheus Collects metrics.
+
+Grafana Visualizes metrics.
+
+OpenTelemetry Collects/standardizes telemetry.
+
+Jaeger Shows distributed traces.
+
+Ansible Automates server configuration.
+
+36. WHERE WE ARE RIGHT NOW
+
+COMPLETED: Spring Boot Maven Git/GitHub Docker Docker Compose Prometheus
+Grafana Jenkins SonarQube Quality Gate Docker Hub Terraform AWS VPC EKS
+Kubernetes Deployment Pods Service AWS Load Balancer External
+application access
+
+NEXT: 1. GitHub Actions 2. Helm 3. Argo CD 4. Ansible 5.
+Prometheus/Grafana on EKS 6. Deeper Kubernetes 7. Observability 8. SRE
+concepts
+
+The important point: We are not starting from zero anymore.
+
+We have already built a working application deployment from source code
+all the way to a publicly reachable application running on AWS EKS.

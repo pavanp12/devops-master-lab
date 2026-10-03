@@ -22,12 +22,17 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
   vpc_id = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+  addons = { vpc-cni = { before_compute = true, most_recent = true }, eks-pod-identity-agent = { before_compute = true, most_recent = true }, kube-proxy = { most_recent = true }, coredns = { most_recent = true } }
+  
+
+
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.small"]
       min_size = 1
       max_size = 2
       desired_size = 1
+      
     }
   }
 }

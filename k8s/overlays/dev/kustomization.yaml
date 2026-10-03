@@ -3,6 +3,9 @@ kind: Kustomization
 resources:
   - ../../base
 images:
-  - name: devops-java-lab:local
-    newName: devops-java-lab
-    newTag: local
+  - name: devops-java-lab
+    newName: pavandevp12/devops-java-lab
+    newTag: "22"
+  
+patches:
+  - path: service.yaml
